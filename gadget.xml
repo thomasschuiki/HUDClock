@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<gadget>
+  <name>ClockGadget</name>
+  <namespace>microsoft.windows</namespace>
+  <version>1.0.0.0</version>
+  <author name="Thomas Eitler">
+	<info url="https://github.com/juicybit/clockgadget" />
+  </author>
+  <copyright>&#169; 2013</copyright>
+  <description>Stylish Clock Gadget</description>
+  <version value="1.0.0.0" MinPlatformVersion ="0.3"/>
+  <hosts>
+    <host name="sidebar">
+      <base type="HTML" apiVersion="1.0.0" src="content.html"/>
+      <permissions>Full</permissions>
+      <platform minPlatformVersion="1.0"/>
+    </host>
+  </hosts>
+</gadget>

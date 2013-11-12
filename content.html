@@ -1,0 +1,185 @@
+<html>
+<head>
+<style> 
+body {
+	width: 500px;
+	height: 250px;
+	font-size: 12px;
+	margin: 0;
+	font-family: Verdana;
+	color: #FFFFFF;
+	font-weight:bold;	
+} 
+.gadget {
+	margin: 3px;
+} 
+</style>
+
+<script>
+	var debug = true;
+	function alert(msg) { System.Debug.outputString(msg); }
+</script>
+
+<script type="text/javascript">
+var time;
+var date;
+var month;
+var day;
+var debug = null;
+
+var m = ['JANUARY','FEBRUARY','MARCH','APRIL','MAY','JUNE','JULY','AUGUST','SEPTEMBER','OCTOBER','NOVEMBER','DECEMBER'];
+var d = ['SUNDAY','MONDAY','TUESDAY','WEDNESDAY','THURSDAY','FRIDAY','SATURDAY'];
+
+System.Gadget.settingsUI = "settings.html";
+System.Gadget.onSettingsClosed = settingsClosed;
+
+// var defaultColour = [255, 255, 255];
+// var colour = defaultColour;
+// var fonttype = System.Gadget.Settings.readString("fonttype");
+// var fontSizer;
+
+function settingsClosed()
+{
+	alert("settingsClosed");
+
+	if (System.Gadget.Settings.readString("fonttype") != "")
+		fonttype = System.Gadget.Settings.readString("fonttype");
+
+	time.font = date.font = day.font = month.font = fonttype;
+}
+
+function update1()
+{
+	alert('Updating...');
+		
+	if (fonttype == "")
+	{
+		alert("Blank fonttype, defaulting to Arial");
+		fonttype = "Arial";
+	}
+
+	var current = System.Time.getLocalTime(System.Time.currentTimeZone);
+	var dDateInfo = new Date(Date.parse(current));   
+
+	tHours = dDateInfo.getHours();
+	// var meridiem = tHours >= 12 ? " PM" : " AM";
+	// if(tHours == 0) tHours = 12;
+	
+	tMinutes = dDateInfo.getMinutes();
+	tMinutes = ((tMinutes < 10) ? ":0" : ":") + tMinutes
+
+	var bg = document.getElementById("bg");
+
+	if(fontSizer == null)
+		fontSizer = bg.addTextObject("Arial", "Arial", 18, "Black", 0, -1000);
+	
+	// var time_value = tHours > 12 ? (tHours-12) + tMinutes + meridiem : tHours + tMinutes + meridiem;
+	var time_value = tHours + tMinutes;
+	if(time == null)
+	{
+		time = bg.addTextObject(time_value, fonttype, 105, "white", 0, 0);
+		time.opacity = 30;
+	}
+	time.value = time_value;
+	// time.left = 500-time.width;
+	time.left = 0;
+
+	if(date == null)
+	{
+		date = bg.addTextObject(dDateInfo.getDate(), fonttype, 80, "white", time.left, 90);
+		date.opacity = 30;
+	}
+	date.value = dDateInfo.getDate();
+	date.left = time.left+12;
+
+	if(month == null)
+	{
+		month = bg.addTextObject(m[dDateInfo.getMonth()], fonttype, 45, "white", date.left+date.width, 95);
+		month.opacity = 30;
+	}
+	month.value = m[dDateInfo.getMonth()];
+	month.left = date.left+date.width;
+
+	if(day == null)
+	{
+		day = bg.addTextObject(d[dDateInfo.getDay()], fonttype, 30, "white", date.left+date.width, 135);
+		day.opacity = 30;
+	}
+	day.value = d[dDateInfo.getDay()];
+	day.left = date.left+date.width;
+
+	if(debug == null)
+	{
+		debug = bg.addTextObject("hello", fonttype, 30, "white", 0, 160);
+		debug.opacity = 30;
+	}
+	debug.value = body.offsetWidth;
+	debug.left = date.left+date.width;
+
+	alert(time.value+", "+date.value+", "+day.value+", "+month.value);
+/*
+	day.width = day.offsetWidth;
+	month.width = month.offsetWidth;
+	time.width = time.offsetWidth;
+*/
+	
+
+	setTimeout('update()', 1*1000);
+}
+
+var timeObject, dateObject, monthObject, dayObject;
+var TimeAndDate = new Date(Date.parse(System.Time.getLocalTime(System.Time.currentTimeZone)));
+
+function getFormatedTime(timeInfo){
+	var tHours = timeInfo.getHours();
+	var tMinutes = timeInfo.getMinutes();	
+	tMinutes = ((tMinutes < 10) ? ":0" : ":") + tMinutes;	
+
+	return tHours + tMinutes ;
+}
+var update = function(){	
+	TimeAndDate.setTime(System.Time.getLocalTime(System.Time.currentTimeZone));
+	timeObject.value = getFormatedTime(TimeAndDate);
+	setTimeout(update, 30*1000);
+}
+function init() {
+		
+	// var fontType 	= System.Gadget.Settings.readString("fonttype");
+	var fontType 	= "Arial";
+	var fontColor 	= "white";
+	var bg = document.getElementById("bg");	
+
+	timeObject 	= bg.addTextObject('time' , fontType, 100, fontColor, 0, 0);
+	dateObject 	= bg.addTextObject('date' , fontType, 80 , fontColor, 0, 0);
+	monthObject = bg.addTextObject('month', fontType, 45 , fontColor, 0, 0);
+	dayObject 	= bg.addTextObject('day'  , fontType, 30 , fontColor, 0, 0);
+
+	timeObject.opacity  = 30;
+	timeObject.value    = getFormatedTime(TimeAndDate);
+
+	dateObject.opacity  = 30;
+	dateObject.top      = timeObject.height - 40;
+	dateObject.left     = 10;
+	dateObject.value    = TimeAndDate.getDate();
+	
+	monthObject.opacity = 30
+	monthObject.top     = timeObject.height - 35;
+	monthObject.left    = dateObject.width;
+	monthObject.value   = m[TimeAndDate.getMonth()];
+	
+	dayObject.opacity   = 30;
+	dayObject.top       = timeObject.height + 5;
+	dayObject.left      = dateObject.width + 2;
+	dayObject.value     = d[TimeAndDate.getDay()];
+
+	update();
+};
+
+
+</script>
+</head>
+<body onload="init();" >
+	
+	<g:background id="bg" style="width:100%; height:100%; z-index:-1; position:absolute; top:0; left:0; font-weight:bold;" opacity="0%" />
+</body> 
+</html>
